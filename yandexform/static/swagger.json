@@ -1,0 +1,30 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "My API",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/users": {
+      "get": {
+        "summary": "Получить список пользователей",
+        "responses": {
+          "200": {
+            "description": "Успешный ответ",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {"type": "integer"},
+                  "name": {"type": "string"}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

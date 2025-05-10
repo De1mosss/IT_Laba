@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Регистрация</h2>
+<form id="registerForm">
+    <input type="text" id="username" placeholder="Логин" required>
+    <input type="password" id="password" placeholder="Пароль" required>
+    <button type="submit">Зарегистрироваться</button>
+</form>
+<script>
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+        })
+    });
+    const data = await response.json();
+    alert(data.message || data.error);
+});
+</script>
+{% endblock %}

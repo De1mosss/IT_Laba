@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Мои формы</h2>
+<div id="formsList"></div>
+<script>
+async function loadForms() {
+    const response = await fetch('/api/forms', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    const forms = await response.json();
+
+    const container = document.getElementById('formsList');
+    container.innerHTML = forms.map(form => `
+        <div>
+            <h3>${form.title}</h3>
+            <a href="/fill-form/${form.id}">Заполнить</a>
+        </div>
+    `).join('');
+}
+loadForms();
+</script>
+{% endblock %}

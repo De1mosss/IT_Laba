@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Заполнение формы</h2>
+<form id="fillForm">
+    <div id="formFields"></div>
+    <button type="submit">Отправить</button>
+</form>
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const formId = urlParams.get('id');
+
+async function loadForm() {
+    const response = await fetch(`/api/forms/${formId}`);
+    const form = await response.json();
+
+    const container = document.getElementById('formFields');
+    container.innerHTML = form.fields.map(field => `
+        <div>
+            <label>${field.label}:</label>
+            ${field.type === 'text' ? `
+                <input type="text" name="${field.label}">
+            ` : ''}
+            ${['radio', 'checkbox'].includes(field.type) ? `
+                ${field.options.map(option => `
+                    <label>
+                        <input type="${field.type}" name="${field.label}" value="${option}">
+                        ${option}
+                    </label>
+                `).join('')}
+            ` : ''}
+        </div>
+    `).join('');
+}
+loadForm();
+
+document.getElementById('fillForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const answers = {};
+    document.querySelectorAll('input').forEach(input => {
+        if (input.type === 'text') {
+            answers[input.name] = input.value;
+        } else if (input.checked) {
+            answers[input.name] = answers[input.name] || [];
+            answers[input.name].push(input.value);
+        }
+    });
+
+    const response = await fetch(`/api/responses/${formId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ answers })
+    });
+    const data = await response.json();
+    alert(data.message || data.error);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Создать форму</h2>
+<form id="createForm">
+    <input type="text" id="title" placeholder="Название формы" required>
+    <div id="fieldsContainer">
+        <div class="field">
+            <select class="field-type">
+                <option value="text">Текст</option>
+                <option value="radio">Radio</option>
+                <option value="checkbox">Checkbox</option>
+            </select>
+            <input type="text" class="field-label" placeholder="Название поля" required>
+            <input type="text" class="field-options" placeholder="Варианты (через запятую)">
+            <button type="button" onclick="removeField(this)">Удалить</button>
+        </div>
+    </div>
+    <button type="button" onclick="addField()">Добавить поле</button>
+    <button type="submit">Создать форму</button>
+</form>
+<script>
+function addField() {
+    const container = document.getElementById('fieldsContainer');
+    const newField = document.querySelector('.field').cloneNode(true);
+    container.appendChild(newField);
+}
+
+function removeField(button) {
+    if (document.querySelectorAll('.field').length > 1) {
+        button.closest('.field').remove();
+    }
+}
+
+document.getElementById('createForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const fields = [];
+    document.querySelectorAll('.field').forEach(field => {
+        const type = field.querySelector('.field-type').value;
+        const label = field.querySelector('.field-label').value;
+        const options = field.querySelector('.field-options').value.split(',').map(o => o.trim());
+
+        fields.push({
+            type: type,
+            label: label,
+            options: options.filter(o => o)
+        });
+    });
+
+    const response = await fetch('/api/forms', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+            title: document.getElementById('title').value,
+            fields: fields
+        })
+    });
+    const data = await response.json();
+    alert(data.message || data.error);
+});
+</script>
+{% endblock %}
